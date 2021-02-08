@@ -6,7 +6,7 @@ Build a Backend REST API with Python &amp; Django - Advanced code
 
 ## Export requirements for docker
 
-`poetry export -f requirements.txt --output requirements.txt`
+`poetry export -f requirements.txt --output requirements.txt --without-hashes`
 
 ## Build docker file from this directory
 
