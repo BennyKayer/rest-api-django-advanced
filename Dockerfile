@@ -7,7 +7,13 @@ LABEL maintainer="pawlo97.pb@gmail.com"
 ENV PYTHONUNBUFFERED 1
 
 COPY ./requirements.txt /requirements.txt
+# install stuff for psycopg2 no cache is for minimizing #of deps installed
+RUN apk add --update --no-cache postgresql-client
+# stuff needed before running requirements and not needed after
+RUN apk add --update --no-cache --virtual .tmp-build-deps \
+    gcc libc-dev linux-headers postgresql-dev
 RUN pip install -r /requirements.txt
+RUN apk del .tmp-build-deps
 
 # copy app files and set workdir
 RUN mkdir /app
