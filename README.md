@@ -14,4 +14,4 @@ Build a Backend REST API with Python &amp; Django - Advanced code
 
 ## Create project in compose ?
 
-`docker-compose run app sh -c "django-admin startproject app ."`
+`docker-compose run --rm app sh -c "django-admin startproject app ."`
