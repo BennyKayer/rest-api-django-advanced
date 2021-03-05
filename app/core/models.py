@@ -98,3 +98,28 @@ class Ingredient(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+
+class Recipe(models.Model):
+    """Recipe object
+
+    Args:
+        models ([type]): [description]
+    """
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE
+    )
+    title = models.CharField(max_length=255)
+    time_minutes = models.IntegerField()
+    price = models.DecimalField(max_digits=5, decimal_places=2)
+    # Will create blank = "" strings in db
+    # don't use null if you don't want to chech for 2 values here
+    link = models.CharField(max_length=255, blank=True)
+    # Could also be passed as class Ingredient
+    # but then it would require Ingredient to be above Recipe
+    ingredients = models.ManyToManyField("Ingredient")
+    tags = models.ManyToManyField("Tag")
+
+    def __str__(self):
+        return self.title
