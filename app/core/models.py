@@ -1,13 +1,10 @@
-import uuid
 import os
+import uuid
 
-from django.db import models
-from django.contrib.auth.models import (
-    AbstractBaseUser,
-    BaseUserManager,
-    PermissionsMixin,
-)
 from django.conf import settings
+from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager,
+                                        PermissionsMixin)
+from django.db import models
 
 
 def recipe_image_file_path(instance, filename):

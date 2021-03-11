@@ -1,9 +1,8 @@
 from unittest.mock import patch
 
-from django.test import TestCase
-from django.contrib.auth import get_user_model
-
 from core import models
+from django.contrib.auth import get_user_model
+from django.test import TestCase
 
 
 def sample_user(email: str = "test@gmail.com", password: str = "p455WORDC#"):
