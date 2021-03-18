@@ -1,8 +1,10 @@
 from core.models import Ingredient, Recipe, Tag
 from recipe import serializers
-from rest_framework import mixins, viewsets
+from rest_framework import mixins, viewsets, status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 
 class BaseRecipeAttrViewSet(
@@ -54,14 +56,36 @@ class RecipeViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
+    def _params_to_ints(self, qs):
+        """Convert a list of string iD to a list on integers
+
+        Args:
+            qs ([type]): [description]
+        """
+        return [int(x) for x in qs.split(",")]
+
     def get_queryset(self):
         """Retrieve the recipes for the authenticated user"""
-        return self.queryset.filter(user=self.request.user)
+        tags = self.request.query_params.get("tags")
+        ingredients = self.request.query_params.get("ingredients")
+        queryset = self.queryset
+
+        if tags:
+            tag_ids = self._params_to_ints(tags)
+            queryset = queryset.filter(tags__id__in=tag_ids)
+        if ingredients:
+            ingredient_ids = self._params_to_ints(ingredients)
+            queryset = queryset.filter(ingredients__id__in=ingredient_ids)
+
+        return queryset.filter(user=self.request.user)
 
     def get_serializer_class(self):
         """Return appropriate serializer class"""
         if self.action == "retrieve":
             return serializers.RecipeDetailSerializer
+        # Can't made it upload-image no fucking idea how to
+        elif self.action == "upload_image":
+            return serializers.RecipeImageSerializer
         return self.serializer_class
 
     def perform_create(self, serializer):
@@ -71,6 +95,27 @@ class RecipeViewSet(viewsets.ModelViewSet):
             serializer ([type]): [description]
         """
         serializer.save(user=self.request.user)
+
+    @action(
+        methods=["POST"],
+        detail=True,
+        url_path="upload-image",
+        name="upload-image",
+        url_name="upload-image",
+    )
+    def upload_image(self, request, pk=None):
+        """Upload image to a recipe
+
+        Args:
+            request ([type]): [description]
+            pk ([type], optional): [description]. Defaults to None.
+        """
+        recipe = self.get_object()
+        serializer = self.get_serializer(recipe, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # Refactor bcs they are very similar
